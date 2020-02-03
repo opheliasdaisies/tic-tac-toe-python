@@ -8,11 +8,23 @@ class Game:
         self.cursor_row = 0
         self.cursor_column = 0
         self.player = 'X'
+        self.has_winner = False
 
     CURSOR_BACKGROUND = '\u001b[42m'
     BACKGROUND_RESET = '\u001b[0m'
     BLINK = '\u001b[5m'
     STOP_BLINK = '\u001b[25m'
+
+    WINNING_SETS = [
+        [(0, 0), (0, 1), (0, 2)],
+        [(1, 0), (1, 1), (1, 2)],
+        [(2, 0), (2, 1), (2, 2)],
+        [(0, 0), (1, 0), (2, 0)],
+        [(0, 1), (1, 1), (2, 1)],
+        [(0, 2), (1, 2), (2, 2)],
+        [(0, 0), (1, 1), (2, 2)],
+        [(0, 2), (1, 1), (2, 0)],
+    ]
 
     def get_space_value(self, row, column):
         coordiantes = (row, column)
@@ -50,11 +62,12 @@ class Game:
         row = 0
         column = 0
 
-    def check_if_winner(self):
+    def check_if_winner(self, last_move):
         checked_set = self.X if self.player is 'X' else self.O
         if len(checked_set) > 2:
-            return True
-        return False
+            for winning_set in self.WINNING_SETS:
+                if all(item in checked_set for item in winning_set):
+                    self.has_winner = True
 
     def make_move(self):
         cursor_coordinates = (self.cursor_row, self.cursor_column)
@@ -64,8 +77,12 @@ class Game:
             elif self.player is 'O':
                 self.O.append(cursor_coordinates)
 
-        has_winner = self.check_if_winner()
-        return True if has_winner else False
+        self.check_if_winner(cursor_coordinates)
+
+        if self.has_winner or len(self.X) + len(self.O) is 9:
+            return True
+
+        return False
 
     def change_player(self):
         self.player = 'O' if self.player is 'X' else 'X'
@@ -114,8 +131,8 @@ class Game:
         elif keypress is 'left':
             self.move_cursor_left()
         elif keypress is 'select':
-            has_winner = self.make_move()
-            if has_winner:
+            game_is_over = self.make_move()
+            if game_is_over:
                 tty.tcsetattr(sys.stdin, tty.TCSAFLUSH, mode)
                 return False
             else:
@@ -136,13 +153,24 @@ class Game:
             accepting_input = self.handle_keypress(keypress, mode)            
             self.draw_board()
 
-        print(f'{self.BLINK}PLAYER {self.player} WINS!{self.STOP_BLINK}')
+        if self.has_winner:
+            print(f'\n{self.BLINK}PLAYER {self.player} WINS!{self.STOP_BLINK}\n\r')
+        else:
+            print('\nGAME ENDED IN A TIE.\n\r')
 
 def main():
     game = Game()
 
     try:
         game.play()
+
+        while True:
+            play_again = input('Do you want to play again? (Y/N)')
+            if play_again.upper() == 'Y':
+                game = Game()
+                game.play()
+            else:
+                break
     except KeyboardInterrupt:
         return
 
