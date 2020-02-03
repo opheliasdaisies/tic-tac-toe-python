@@ -11,6 +11,8 @@ class Game:
 
     CURSOR_BACKGROUND = '\u001b[42m'
     BACKGROUND_RESET = '\u001b[0m'
+    BLINK = '\u001b[5m'
+    STOP_BLINK = '\u001b[25m'
 
     def get_space_value(self, row, column):
         coordiantes = (row, column)
@@ -48,6 +50,26 @@ class Game:
         row = 0
         column = 0
 
+    def check_if_winner(self):
+        checked_set = self.X if self.player is 'X' else self.O
+        if len(checked_set) > 2:
+            return True
+        return False
+
+    def make_move(self):
+        cursor_coordinates = (self.cursor_row, self.cursor_column)
+        if cursor_coordinates not in self.X and cursor_coordinates not in self.O:
+            if self.player is 'X':
+                self.X.append(cursor_coordinates)
+            elif self.player is 'O':
+                self.O.append(cursor_coordinates)
+
+        has_winner = self.check_if_winner()
+        return True if has_winner else False
+
+    def change_player(self):
+        self.player = 'O' if self.player is 'X' else 'X'
+
     def process_keyboard_input(self):
         char = ord(sys.stdin.read(1)) # listen for arrow keys and get char code
         if char == 27: # Arrow keys process as a sequence of three characters
@@ -82,16 +104,6 @@ class Game:
         if self.cursor_column > 0:
             self.cursor_column -= 1
 
-    def make_move(self):
-        cursor_coordinates = (self.cursor_row, self.cursor_column)
-        if cursor_coordinates not in self.X and cursor_coordinates not in self.O:
-            if self.player is 'X':
-                self.X.append(cursor_coordinates)
-                self.player = 'O'
-            elif self.player is 'O':
-                self.O.append(cursor_coordinates)
-                self.player = 'X'
-
     def handle_keypress(self, keypress, mode):
         if keypress is 'up':
             self.move_cursor_up()
@@ -102,7 +114,12 @@ class Game:
         elif keypress is 'left':
             self.move_cursor_left()
         elif keypress is 'select':
-            self.make_move()
+            has_winner = self.make_move()
+            if has_winner:
+                tty.tcsetattr(sys.stdin, tty.TCSAFLUSH, mode)
+                return False
+            else:
+                self.change_player()
         elif keypress is 'exit':
             tty.tcsetattr(sys.stdin, tty.TCSAFLUSH, mode)
             raise KeyboardInterrupt
@@ -119,6 +136,7 @@ class Game:
             accepting_input = self.handle_keypress(keypress, mode)            
             self.draw_board()
 
+        print(f'{self.BLINK}PLAYER {self.player} WINS!{self.STOP_BLINK}')
 
 def main():
     game = Game()
