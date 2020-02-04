@@ -5,7 +5,7 @@ class Interface:
     def __init__(self, game):
         self.game = game
 
-    def process_keyboard_input(self):
+    def read_keyboard_input(self):
         char = ord(sys.stdin.read(1)) # listen for arrow keys and get char code
         if char == 27: # Arrow keys process as a sequence of three characters
             next1, next2 = ord(sys.stdin.read(1)), ord(sys.stdin.read(1))

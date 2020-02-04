@@ -64,7 +64,7 @@ class Game:
         column = 0
 
     def check_if_winner(self):
-        moves_made_by_player = self.X if self.player is 'X' else self.O
+        moves_made_by_player = getattr(self, self.player)
         if len(moves_made_by_player) > 2:
             for winning_set in self.WINNING_SETS:
                 if all(move in moves_made_by_player for move in winning_set):
@@ -76,10 +76,7 @@ class Game:
         if cursor_coordinates in self.X or cursor_coordinates in self.O:
             return False # does not take move if spot has already been taken
 
-        if self.player is 'X':
-            self.X.append(cursor_coordinates)
-        elif self.player is 'O':
-            self.O.append(cursor_coordinates)
+        getattr(self, self.player).append(cursor_coordinates)
 
         self.check_if_winner()
         if self.has_winner or len(self.X) + len(self.O) is 9:
@@ -99,7 +96,7 @@ class Game:
         interface = Interface(self)
 
         while accepting_input:
-            keypress = interface.process_keyboard_input()
+            keypress = interface.read_keyboard_input()
             accepting_input = interface.handle_keypress(keypress, mode)            
             self.draw_board()
 
