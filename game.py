@@ -73,17 +73,19 @@ class Game:
 
     def make_move(self):
         cursor_coordinates = (self.cursor_row, self.cursor_column)
-        if cursor_coordinates not in self.X and cursor_coordinates not in self.O:
-            if self.player is 'X':
-                self.X.append(cursor_coordinates)
-            elif self.player is 'O':
-                self.O.append(cursor_coordinates)
+        if cursor_coordinates in self.X or cursor_coordinates in self.O:
+            return False # does not take move if spot has already been taken
+
+        if self.player is 'X':
+            self.X.append(cursor_coordinates)
+        elif self.player is 'O':
+            self.O.append(cursor_coordinates)
 
         self.check_if_winner()
-
         if self.has_winner or len(self.X) + len(self.O) is 9:
             return True
 
+        self.change_player()
         return False
 
     def change_player(self):

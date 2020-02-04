@@ -53,8 +53,6 @@ class Interface:
             if game_is_over:
                 tty.tcsetattr(sys.stdin, tty.TCSAFLUSH, mode)
                 return False
-            else:
-                self.game.change_player()
         elif keypress is 'exit':
             tty.tcsetattr(sys.stdin, tty.TCSAFLUSH, mode)
             raise KeyboardInterrupt
