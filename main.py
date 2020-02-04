@@ -62,12 +62,13 @@ class Game:
         row = 0
         column = 0
 
-    def check_if_winner(self, last_move):
-        checked_set = self.X if self.player is 'X' else self.O
-        if len(checked_set) > 2:
+    def check_if_winner(self):
+        moves_made_by_player = self.X if self.player is 'X' else self.O
+        if len(moves_made_by_player) > 2:
             for winning_set in self.WINNING_SETS:
-                if all(item in checked_set for item in winning_set):
+                if all(move in moves_made_by_player for move in winning_set):
                     self.has_winner = True
+                    break
 
     def make_move(self):
         cursor_coordinates = (self.cursor_row, self.cursor_column)
@@ -77,7 +78,7 @@ class Game:
             elif self.player is 'O':
                 self.O.append(cursor_coordinates)
 
-        self.check_if_winner(cursor_coordinates)
+        self.check_if_winner()
 
         if self.has_winner or len(self.X) + len(self.O) is 9:
             return True
