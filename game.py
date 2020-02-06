@@ -1,15 +1,18 @@
 import tty, sys
+import random
 from interface import Interface
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, players):
         self.X = []
         self.O = []
+        self.possible_moves = [(0, 0), (0,1), (0,2), (1, 0), (1,1), (1,2), (2, 0), (2,1), (2,2)]
         self.cursor_row = 0
         self.cursor_column = 0
         self.player = 'X'
         self.has_winner = False
+        self.ai = players is 1
 
     CURSOR_BACKGROUND = '\u001b[42m'
     BACKGROUND_RESET = '\u001b[0m'
@@ -77,16 +80,24 @@ class Game:
             return False # does not take move if spot has already been taken
 
         getattr(self, self.player).append(cursor_coordinates)
+        self.possible_moves.remove(cursor_coordinates)
 
         self.check_if_winner()
         if self.has_winner or len(self.X) + len(self.O) is 9:
             return True
 
-        self.change_player()
+        if not self.ai:
+            self.change_player()
         return False
 
     def change_player(self):
         self.player = 'O' if self.player is 'X' else 'X'
+
+    def ai_moves(self):
+        move_index = random.randint(0, len(self.possible_moves) - 1)
+        move = self.possible_moves[move_index]
+        self.possible_moves.remove(move)
+        self.O.append(move)
 
     def play_game(self):
         mode = tty.tcgetattr(sys.stdin)
@@ -99,6 +110,8 @@ class Game:
             keypress = interface.read_keyboard_input()
             accepting_input = interface.handle_keypress(keypress, mode)            
             self.draw_board()
+            if self.ai:
+                self.ai_moves()
 
         if self.has_winner:
             print(f'\n{self.BLINK}PLAYER {self.player} WINS!{self.STOP_BLINK}\n\r')

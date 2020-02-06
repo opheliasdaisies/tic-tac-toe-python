@@ -3,7 +3,9 @@ from game import Game
 def main():
 
     try:
-        Game().play_game()
+        players = input('How many players? (1 or 2) ')
+
+        Game(players).play_game()
 
         while True:
             play_again = input('Do you want to play again? (Y/N) ')
