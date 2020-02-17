@@ -86,8 +86,14 @@ class Game:
         if self.has_winner or len(self.X) + len(self.O) is 9:
             return True
 
-        if not self.ai:
+        if self.ai:
             self.change_player()
+            self.ai_moves()
+            self.check_if_winner()
+            if self.has_winner or len(self.X) + len(self.O) is 9:
+                return True
+
+        self.change_player()
         return False
 
     def change_player(self):
@@ -110,8 +116,6 @@ class Game:
             keypress = interface.read_keyboard_input()
             accepting_input = interface.handle_keypress(keypress, mode)            
             self.draw_board()
-            if self.ai:
-                self.ai_moves()
 
         if self.has_winner:
             print(f'\n{self.BLINK}PLAYER {self.player} WINS!{self.STOP_BLINK}\n\r')
