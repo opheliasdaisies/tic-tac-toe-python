@@ -10,7 +10,7 @@ def main():
         while True:
             play_again = input('Do you want to play again? (Y/N) ')
             if play_again.upper() == 'Y':
-                Game().play_game()
+                Game(players).play_game()
             else:
                 break
     except KeyboardInterrupt:

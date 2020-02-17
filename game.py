@@ -12,7 +12,7 @@ class Game:
         self.cursor_column = 0
         self.player = 'X'
         self.has_winner = False
-        self.ai = players is 1
+        self.ai = int(players) is 1
 
     CURSOR_BACKGROUND = '\u001b[42m'
     BACKGROUND_RESET = '\u001b[0m'
